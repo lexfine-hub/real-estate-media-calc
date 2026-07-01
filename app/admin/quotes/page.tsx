@@ -15,11 +15,17 @@ export default function QuotesPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const loadedQuotes = getAllQuotes().sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
-    setQuotes(loadedQuotes);
-    setIsLoading(false);
+    const loadQuotes = async () => {
+      const { getAllQuotesAsync } = await import('@/lib/utils/storage');
+      const loadedQuotes = await getAllQuotesAsync();
+      const sorted = loadedQuotes.sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+      setQuotes(sorted);
+      setIsLoading(false);
+    };
+
+    loadQuotes();
   }, []);
 
   const filteredQuotes = quotes.filter((quote) => {

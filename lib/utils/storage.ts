@@ -4,6 +4,22 @@ import { defaultPricingConfig } from '@/lib/pricing/config';
 const QUOTES_STORAGE_KEY = 'real_estate_quotes';
 const PRICING_STORAGE_KEY = 'real_estate_pricing_config';
 
+let supabaseClient: any = null;
+
+async function getSupabaseClient() {
+  if (!supabaseClient && typeof window !== 'undefined') {
+    try {
+      const { supabase } = await import('@/lib/supabase/client');
+      if (supabase && process.env.NEXT_PUBLIC_SUPABASE_URL) {
+        supabaseClient = supabase;
+      }
+    } catch (error) {
+      console.debug('Supabase not available, using localStorage');
+    }
+  }
+  return supabaseClient;
+}
+
 export function getAllQuotes(): QuoteRequest[] {
   if (typeof window === 'undefined') return [];
 
@@ -16,9 +32,41 @@ export function getAllQuotes(): QuoteRequest[] {
   }
 }
 
+export async function getAllQuotesAsync(): Promise<QuoteRequest[]> {
+  const supabase = await getSupabaseClient();
+
+  if (supabase) {
+    try {
+      const { data, error } = await supabase.from('quotes').select('*').order('created_at', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching quotes from Supabase, falling back to localStorage:', error);
+    }
+  }
+
+  return getAllQuotes();
+}
+
 export function getQuoteById(id: string): QuoteRequest | null {
   const quotes = getAllQuotes();
   return quotes.find((q) => q.id === id) || null;
+}
+
+export async function getQuoteByIdAsync(id: string): Promise<QuoteRequest | null> {
+  const supabase = await getSupabaseClient();
+
+  if (supabase) {
+    try {
+      const { data, error } = await supabase.from('quotes').select('*').eq('id', id).single();
+      if (error && error.code !== 'PGRST116') throw error;
+      return data || null;
+    } catch (error) {
+      console.error('Error fetching quote from Supabase, falling back to localStorage:', error);
+    }
+  }
+
+  return getQuoteById(id);
 }
 
 export function saveQuote(quote: QuoteRequest): void {
@@ -42,6 +90,36 @@ export function saveQuote(quote: QuoteRequest): void {
   } catch (error) {
     console.error('Error saving quote to storage:', error);
   }
+
+  saveQuoteToSupabase(quote);
+}
+
+async function saveQuoteToSupabase(quote: QuoteRequest): Promise<void> {
+  const supabase = await getSupabaseClient();
+
+  if (!supabase) return;
+
+  try {
+    const { error: upsertError } = await supabase.from('quotes').upsert(
+      {
+        id: quote.id,
+        agent_name: quote.agentInfo.name,
+        agent_email: quote.agentInfo.email,
+        agent_phone: quote.agentInfo.phone,
+        property_address: quote.propertyInfo.address,
+        property_city: quote.propertyInfo.city,
+        status: quote.status,
+        data: quote,
+        created_at: quote.createdAt,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'id' }
+    );
+
+    if (upsertError) throw upsertError;
+  } catch (error) {
+    console.error('Error saving quote to Supabase:', error);
+  }
 }
 
 export function deleteQuote(id: string): void {
@@ -53,6 +131,21 @@ export function deleteQuote(id: string): void {
     localStorage.setItem(QUOTES_STORAGE_KEY, JSON.stringify(filtered));
   } catch (error) {
     console.error('Error deleting quote from storage:', error);
+  }
+
+  deleteQuoteFromSupabase(id);
+}
+
+async function deleteQuoteFromSupabase(id: string): Promise<void> {
+  const supabase = await getSupabaseClient();
+
+  if (!supabase) return;
+
+  try {
+    const { error } = await supabase.from('quotes').delete().eq('id', id);
+    if (error) throw error;
+  } catch (error) {
+    console.error('Error deleting quote from Supabase:', error);
   }
 }
 

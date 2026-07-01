@@ -21,11 +21,16 @@ export default function QuoteDetailPage() {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    const loadedQuote = getQuoteById(quoteId);
-    const loadedPricing = getPricingConfig();
-    setQuote(loadedQuote);
-    setPricingConfig(loadedPricing);
-    setIsLoading(false);
+    const loadQuote = async () => {
+      const { getQuoteByIdAsync } = await import('@/lib/utils/storage');
+      const loadedQuote = await getQuoteByIdAsync(quoteId);
+      const loadedPricing = getPricingConfig();
+      setQuote(loadedQuote);
+      setPricingConfig(loadedPricing);
+      setIsLoading(false);
+    };
+
+    loadQuote();
   }, [quoteId]);
 
   if (isLoading) {

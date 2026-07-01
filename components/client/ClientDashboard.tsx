@@ -107,6 +107,11 @@ export default function ClientDashboard({ email, onLogout }: Props) {
                       <p className="text-sm text-slate-500 mt-2">
                         Submitted: {formatDate(quote.createdAt)}
                       </p>
+                      {quote.scheduledShootDate && (
+                        <p className="text-sm text-emerald-700 font-semibold mt-2">
+                          📅 Shoot Scheduled: {quote.scheduledShootDate} at {quote.scheduledShootTime}
+                        </p>
+                      )}
                     </div>
 
                     <div className="text-right">
@@ -191,6 +196,21 @@ export default function ClientDashboard({ email, onLogout }: Props) {
                       <li key={service}>• {service}</li>
                     ))}
                   </ul>
+                </div>
+              )}
+
+              {/* Scheduled Shoot */}
+              {selectedQuote.scheduledShootDate && (
+                <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-200">
+                  <h3 className="text-lg font-bold text-emerald-700 mb-3">📅 Scheduled Shoot</h3>
+                  <div className="space-y-2 text-slate-700">
+                    <p>
+                      <span className="font-semibold">Date:</span> {selectedQuote.scheduledShootDate}
+                    </p>
+                    <p>
+                      <span className="font-semibold">Time:</span> {selectedQuote.scheduledShootTime}
+                    </p>
+                  </div>
                 </div>
               )}
 

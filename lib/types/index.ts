@@ -105,6 +105,10 @@ export interface QuoteRequest {
   applySalesTax?: boolean;
   recommendedPackageId?: string;
   recommendationReason?: string;
+  scheduledShootDate?: string;
+  scheduledShootTime?: string;
+  shootScheduledBy?: string;
+  shootScheduledAt?: string;
 }
 
 export interface LineItem {

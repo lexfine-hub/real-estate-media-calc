@@ -9,6 +9,7 @@ import { calculateQuoteSummary, getRecommendedPackage, getSquareFootageAdjustmen
 import { formatCurrency, formatDate } from '@/lib/utils/format';
 import { defaultPricingConfig } from '@/lib/pricing/config';
 import QuoteCalculator from '@/components/admin/QuoteCalculator';
+import ScheduleShootForm from '@/components/admin/ScheduleShootForm';
 
 export default function QuoteDetailPage() {
   const params = useParams();
@@ -19,6 +20,7 @@ export default function QuoteDetailPage() {
   const [pricingConfig, setPricingConfig] = useState(defaultPricingConfig);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [showScheduleForm, setShowScheduleForm] = useState(false);
 
   useEffect(() => {
     const loadQuote = async () => {
@@ -66,7 +68,7 @@ export default function QuoteDetailPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="bg-white rounded-2xl p-8 border border-slate-200">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-4xl font-bold text-slate-900 mb-2">Quote Review</h1>
             <p className="text-slate-600">
@@ -78,6 +80,28 @@ export default function QuoteDetailPage() {
             className="text-slate-600 hover:text-slate-900"
           >
             ← Back
+          </button>
+        </div>
+
+        {/* Scheduled Shoot Section */}
+        <div className="pt-4 border-t border-slate-200 flex items-center justify-between">
+          <div>
+            {quote.scheduledShootDate ? (
+              <div>
+                <p className="text-sm text-slate-600 font-semibold mb-1">Scheduled Shoot</p>
+                <p className="text-lg font-bold text-emerald-700">
+                  {quote.scheduledShootDate} at {quote.scheduledShootTime}
+                </p>
+              </div>
+            ) : (
+              <p className="text-slate-600">No shoot date scheduled yet</p>
+            )}
+          </div>
+          <button
+            onClick={() => setShowScheduleForm(true)}
+            className="bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-bold py-2 px-6 rounded-lg transition"
+          >
+            {quote.scheduledShootDate ? 'Reschedule' : 'Schedule Shoot'}
           </button>
         </div>
       </div>
@@ -191,6 +215,18 @@ export default function QuoteDetailPage() {
           />
         </div>
       </div>
+
+      {/* Schedule Shoot Modal */}
+      {showScheduleForm && (
+        <ScheduleShootForm
+          quote={quote}
+          onClose={() => setShowScheduleForm(false)}
+          onSave={(updatedQuote) => {
+            setQuote(updatedQuote);
+            setShowScheduleForm(false);
+          }}
+        />
+      )}
     </div>
   );
 }

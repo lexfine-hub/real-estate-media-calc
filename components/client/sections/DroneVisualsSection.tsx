@@ -55,7 +55,7 @@ export default function DroneVisualsSection({ formData, setFormData }: Props) {
             <label key={option.id} className="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-slate-100 transition">
               <input
                 type="checkbox"
-                checked={formData.droneVisuals?.[option.id as keyof typeof formData.droneVisuals] || false}
+                checked={Boolean(formData.droneVisuals?.[option.id as keyof typeof formData.droneVisuals])}
                 onChange={() => toggleDroneOption(option.id)}
                 className="w-5 h-5 text-yellow-400 rounded focus:ring-2 focus:ring-yellow-400 cursor-pointer"
               />

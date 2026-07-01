@@ -39,7 +39,19 @@ export async function getAllQuotesAsync(): Promise<QuoteRequest[]> {
     try {
       const { data, error } = await supabase.from('quotes').select('*').order('created_at', { ascending: false });
       if (error) throw error;
-      return data || [];
+
+      // Extract the full quote object from the data JSONB field
+      if (Array.isArray(data)) {
+        return data.map((row: any) => {
+          // If the quote is stored in the 'data' field, use that
+          if (row.data && typeof row.data === 'object') {
+            return row.data as QuoteRequest;
+          }
+          // Otherwise return the row as-is (backward compatibility)
+          return row as QuoteRequest;
+        });
+      }
+      return [];
     } catch (error) {
       console.error('Error fetching quotes from Supabase, falling back to localStorage:', error);
     }
@@ -60,7 +72,15 @@ export async function getQuoteByIdAsync(id: string): Promise<QuoteRequest | null
     try {
       const { data, error } = await supabase.from('quotes').select('*').eq('id', id).single();
       if (error && error.code !== 'PGRST116') throw error;
-      return data || null;
+
+      // Extract the full quote object from the data JSONB field
+      if (data) {
+        if (data.data && typeof data.data === 'object') {
+          return data.data as QuoteRequest;
+        }
+        return data as QuoteRequest;
+      }
+      return null;
     } catch (error) {
       console.error('Error fetching quote from Supabase, falling back to localStorage:', error);
     }

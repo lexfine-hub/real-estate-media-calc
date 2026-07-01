@@ -91,7 +91,9 @@ export const defaultPricingConfig: PricingConfig = {
     virtualTwilightSet: {
       id: 'virtualTwilightSet',
       name: 'Virtual twilight set',
+      pricePerUnit: 0,
       flatFee: 125,
+      unit: 'flat fee',
     },
     skyReplacement: {
       id: 'skyReplacement',

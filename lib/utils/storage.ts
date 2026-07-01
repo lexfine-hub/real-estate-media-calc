@@ -97,9 +97,13 @@ export function saveQuote(quote: QuoteRequest): void {
 async function saveQuoteToSupabase(quote: QuoteRequest): Promise<void> {
   const supabase = await getSupabaseClient();
 
-  if (!supabase) return;
+  if (!supabase) {
+    console.debug('Supabase not available, skipping remote save');
+    return;
+  }
 
   try {
+    console.log('Saving quote to Supabase:', quote.id);
     const { error: upsertError } = await supabase.from('quotes').upsert(
       {
         id: quote.id,
@@ -116,9 +120,13 @@ async function saveQuoteToSupabase(quote: QuoteRequest): Promise<void> {
       { onConflict: 'id' }
     );
 
-    if (upsertError) throw upsertError;
+    if (upsertError) {
+      console.error('Supabase upsert error:', upsertError);
+      throw upsertError;
+    }
+    console.log('✅ Quote saved to Supabase successfully');
   } catch (error) {
-    console.error('Error saving quote to Supabase:', error);
+    console.error('Error saving quote to Supabase:', error instanceof Error ? error.message : error);
   }
 }
 

@@ -1,13 +1,11 @@
 'use client';
 
 import { signIn } from 'next-auth/react';
-import { useSearchParams } from 'next/navigation';
-
-export const dynamic = 'force-dynamic';
 
 export default function SignInPage() {
-  const searchParams = useSearchParams();
-  const callbackUrl = searchParams?.get('callbackUrl') || '/admin';
+  const handleSignIn = () => {
+    signIn('google', { callbackUrl: '/admin' });
+  };
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center px-4">
@@ -19,7 +17,7 @@ export default function SignInPage() {
           </div>
 
           <button
-            onClick={() => signIn('google', { callbackUrl })}
+            onClick={handleSignIn}
             className="w-full flex items-center justify-center gap-3 bg-white border border-slate-300 hover:bg-slate-50 text-slate-900 font-semibold py-3 px-4 rounded-lg transition mb-4"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -53,7 +51,7 @@ export default function SignInPage() {
           </div>
 
           <button
-            onClick={() => signIn('google', { callbackUrl })}
+            onClick={handleSignIn}
             className="w-full bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-bold py-3 px-4 rounded-lg transition"
           >
             Sign In with Google

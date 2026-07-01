@@ -1,15 +1,26 @@
 'use client';
 
-import { useState } from 'react';
+import { useSession, signIn } from 'next-auth/react';
 import ClientLogin from '@/components/client/ClientLogin';
 import ClientDashboard from '@/components/client/ClientDashboard';
 
 export default function ClientPage() {
-  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const { data: session, status } = useSession();
 
-  if (!userEmail) {
-    return <ClientLogin onLogin={setUserEmail} />;
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-400"></div>
+          <p className="mt-4 text-slate-600">Loading...</p>
+        </div>
+      </div>
+    );
   }
 
-  return <ClientDashboard email={userEmail} onLogout={() => setUserEmail(null)} />;
+  if (status === 'unauthenticated') {
+    return <ClientLogin onLogin={() => signIn('google', { callbackUrl: '/client' })} />;
+  }
+
+  return <ClientDashboard email={session?.user?.email || ''} onLogout={() => {}} />;
 }

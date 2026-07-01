@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useSession, signOut } from 'next-auth/react';
 import { QuoteRequest } from '@/lib/types';
 import { formatCurrency, formatDate } from '@/lib/utils/format';
 

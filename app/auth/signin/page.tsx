@@ -1,9 +1,13 @@
 'use client';
 
 import { signIn } from 'next-auth/react';
+import { useSearchParams } from 'next/navigation';
 
-export default function SignInPage({ searchParams }: { searchParams: Record<string, string | string[]> }) {
-  const callbackUrl = (searchParams?.callbackUrl as string) || '/admin';
+export const dynamic = 'force-dynamic';
+
+export default function SignInPage() {
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams?.get('callbackUrl') || '/admin';
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center px-4">

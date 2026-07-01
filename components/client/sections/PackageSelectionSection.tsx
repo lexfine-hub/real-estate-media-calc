@@ -18,8 +18,8 @@ export default function PackageSelectionSection({ formData, setFormData }: Props
   };
 
   const packages = packageOrder
-    .map((id) => ({ id, ...defaultPricingConfig.packages[id] }))
-    .filter((pkg) => pkg.name);
+    .map((packageId) => defaultPricingConfig.packages[packageId])
+    .filter((pkg) => pkg && pkg.name);
 
   return (
     <div className="bg-gradient-to-br from-slate-50 to-white rounded-2xl p-8 border border-slate-200">
